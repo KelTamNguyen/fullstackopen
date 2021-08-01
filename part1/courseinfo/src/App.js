@@ -32,12 +32,12 @@ const Header = (props) => {
   );
 };
 
-const Content = (props) =>{
+const Content = ({ parts }) =>{
+  const partList = parts.map(part => <Part part={part.name} exercises={part.exercises} />);
+  
   return(
     <div>
-      <Part part={props.parts[0].name} exercises={props.parts[0].exercises} />
-      <Part part={props.parts[1].name} exercises={props.parts[1].exercises} />
-      <Part part={props.parts[2].name} exercises={props.parts[2].exercises} />
+      {partList}
     </div>
   );
 };
@@ -60,9 +60,6 @@ const Total = ({ parts }) => {
   };
 
   return(
-    // normal solution of exercise 1.4
-    // <p>Number of exercises {parts[0].exercises + parts[1].exercises + parts[2].exercises}</p>
-
     <p>Number of exercises {getTotal()}</p> // fancy solution to exercise 1.4
   );
 };

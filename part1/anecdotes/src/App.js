@@ -12,23 +12,30 @@ const App = () => {
   ]
    
   const [selected, setSelected] = useState(0);
-  const  [points, setPoints] = useState([0, 0, 0, 0, 0, 0, 0]);
+  const  [tallies, setTallies] = useState(new Array(anecdotes.length).fill(0));
 
   const randomSelection = (max) => {
-    setSelected(Math.floor(Math.random() * max));
+    setSelected(Math.round(Math.random() * max));
   }
 
-  const vote = () => {
-    const newPoints = [...points];
+  const castVote = () => {
+    const newPoints = [...tallies];
     newPoints[selected] += 1;
-    setPoints(newPoints);
+    setTallies(newPoints);
+    // console.log(tallies);
+    // console.log(anecdotes[mostPopular]);
   }
+
+  const mostPopular = tallies.indexOf(Math.max(...tallies));
 
   return (
     <div>
+      <h1>Anecdote of the day</h1>
       <p>{anecdotes[selected]}</p>
-      <button onClick={() => vote()}>vote</button>
-      <button onClick={() => randomSelection(anecdotes.length)}>next anecdote</button>
+      <button onClick={castVote}>vote</button>
+      <button onClick={() => randomSelection(anecdotes.length - 1)}>next anecdote</button>
+      <h1>Anecdote with most votes</h1>
+      <p>{anecdotes[mostPopular]}</p>
     </div>
   )
 }

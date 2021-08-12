@@ -1,20 +1,23 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
 import Filter from './components/Filter'
+import axios from 'axios'
+import './index.css'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456' },
-    { name: 'Ada Lovelace', number: '39-44-5323523' },
-    { name: 'Dan Abramov', number: '12-43-234345' },
-    { name: 'Mary Poppendieck', number: '39-23-6423122' }
-  ]); 
+  const [persons, setPersons] = useState([]); 
   const [ newName, setNewName ] = useState('');
   const [ newNumber, setNewNumber ] = useState('');
   const [ query, setQuery ] = useState('');
-  const [showAll, setShowAll] = useState(true);
-  const [ queriedPersons, setQueriedPersons ] = useState(persons);
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => {
+        setPersons(response.data)
+      })
+  }, [])
 
   const handleNewName = (event) => {
     setNewName(event.target.value);
@@ -41,19 +44,23 @@ const App = () => {
   }
 
   return (
-    <div>
-      <h2>Phonebook</h2>
-      <Filter queryValue={query} handleQuery={handleQuery} />
-      <h2>Add a new</h2>
-      <PersonForm 
-        nameValue={newName}
-        numberValue={newNumber}
-        handleSubmit={addNewName}
-        handleNewName={handleNewName}
-        handleNewNumber={handleNewNumber}
-      />
-      <h2>Numbers</h2>
-      <Persons persons={persons} />
+    <div className="flex-container">
+      <div className="flex-child">
+        <h2>Phonebook</h2>
+        <Filter queryValue={query} handleQuery={handleQuery} />
+        <h2>Add a new</h2>
+        <PersonForm 
+          nameValue={newName}
+          numberValue={newNumber}
+          handleSubmit={addNewName}
+          handleNewName={handleNewName}
+          handleNewNumber={handleNewNumber}
+        />
+      </div>
+      <div className="flex-child numbers-list">
+        <h2>Numbers</h2>
+        <Persons persons={persons} />
+      </div>
     </div>
   )
 }

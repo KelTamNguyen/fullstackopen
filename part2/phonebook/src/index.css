@@ -1,0 +1,24 @@
+label {
+    text-align: right;
+}
+
+.flex-container {
+    display: flex;
+    border: 1px solid black;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.flex-child {
+    flex: 1;
+    text-align: center;
+    padding-bottom: 10px;
+}
+
+.flex-child:first-child {
+   margin-right: 20px;
+}
+
+.numbers-list {
+    color: white;
+    background-color: black;
+}

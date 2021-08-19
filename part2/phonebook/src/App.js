@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
-import Filter from './components/Filter'
-import axios from 'axios'
-import './index.css'
+import Filter from './components/Filter';
+import personService from './services/persons';
+import './index.css';
 
 const App = () => {
   const [persons, setPersons] = useState([]); 
@@ -12,11 +12,9 @@ const App = () => {
   const [ query, setQuery ] = useState('');
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
-      })
+    personService
+      .getPersons()
+      .then(intitialPersons => setPersons(intitialPersons))
   }, [])
 
   const handleNewName = (event) => {
@@ -32,15 +30,40 @@ const App = () => {
     setPersons(persons.filter(person => person.name.toLowerCase().includes(event.target.value.toLowerCase())))
   }
 
-  const addNewName = (event) => {
+  const addNewPerson = (event) => {
     event.preventDefault();
+
+    const existingPerson = persons.find(person => person.name === newName);
     const newPerson = { name: newName, number: newNumber};
-    if (persons.filter(person => person.name === newName).length === 0) {
-      setPersons(persons.concat(newPerson));
+
+    if (existingPerson === undefined) {
+      personService
+        .createPerson(newPerson)
+        .then(returnedPerson => setPersons(persons.concat(returnedPerson)))
     } else {
-      alert(`${newName} is already added to phonebook`);
+        if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+          personService
+            .updatePerson(newPerson, existingPerson.id)
+            .then(() => {
+              personService
+                .getPersons()
+                .then(persons => setPersons(persons))
+            })
+        }
     }
     setNewName('');
+    setNewNumber('');
+  }
+
+  const deletePerson = (id, name) => {
+    window.confirm(`Delete ${name}?`)
+    personService
+      .deletePerson(id)
+      .then(() => {
+        personService
+          .getPersons()
+          .then(persons => setPersons(persons))
+      })
   }
 
   return (
@@ -52,14 +75,14 @@ const App = () => {
         <PersonForm 
           nameValue={newName}
           numberValue={newNumber}
-          handleSubmit={addNewName}
+          handleSubmit={addNewPerson}
           handleNewName={handleNewName}
           handleNewNumber={handleNewNumber}
         />
       </div>
       <div className="flex-child numbers-list">
         <h2>Numbers</h2>
-        <Persons persons={persons} />
+        <Persons persons={persons} handleDelete={deletePerson} />
       </div>
     </div>
   )

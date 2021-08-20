@@ -3,13 +3,14 @@ import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
 import Filter from './components/Filter';
 import personService from './services/persons';
-import './index.css';
+import Notification from './components/Notification';
 
 const App = () => {
   const [persons, setPersons] = useState([]); 
   const [ newName, setNewName ] = useState('');
   const [ newNumber, setNewNumber ] = useState('');
   const [ query, setQuery ] = useState('');
+  const [notification, setNotification] = useState(null)
 
   useEffect(() => {
     personService
@@ -39,7 +40,13 @@ const App = () => {
     if (existingPerson === undefined) {
       personService
         .createPerson(newPerson)
-        .then(returnedPerson => setPersons(persons.concat(returnedPerson)))
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson));
+          setNotification({message: `Added ${newPerson.name}`, type: 'success'});
+          setTimeout(() => {
+            setNotification(null)
+          }, 5000);
+        })
     } else {
         if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
           personService
@@ -47,7 +54,18 @@ const App = () => {
             .then(() => {
               personService
                 .getPersons()
-                .then(persons => setPersons(persons))
+                .then(persons => {
+                  setPersons(persons);
+                  setNotification(`Updated ${existingPerson.name}`);
+                  setTimeout(() => {
+                    setNotification(null)
+                  }, 5000);
+                })
+            })
+            .catch(err => {
+              console.log(err);
+              setPersons(persons.filter(person => person.id !== existingPerson.id));
+              setNotification({message: `${existingPerson.name} has already been removed from server`, type: 'error'});
             })
         }
     }
@@ -67,23 +85,20 @@ const App = () => {
   }
 
   return (
-    <div className="flex-container">
-      <div className="flex-child">
-        <h2>Phonebook</h2>
-        <Filter queryValue={query} handleQuery={handleQuery} />
-        <h2>Add a new</h2>
-        <PersonForm 
-          nameValue={newName}
-          numberValue={newNumber}
-          handleSubmit={addNewPerson}
-          handleNewName={handleNewName}
-          handleNewNumber={handleNewNumber}
-        />
-      </div>
-      <div className="flex-child numbers-list">
-        <h2>Numbers</h2>
-        <Persons persons={persons} handleDelete={deletePerson} />
-      </div>
+    <div>
+      <h2>Phonebook</h2>
+      <Notification content={notification} />
+      <Filter queryValue={query} handleQuery={handleQuery} />
+      <h2>Add a new</h2>
+      <PersonForm
+        nameValue={newName}
+        numberValue={newNumber}
+        handleSubmit={addNewPerson}
+        handleNewName={handleNewName}
+        handleNewNumber={handleNewNumber}
+      />
+      <h2>Numbers</h2>
+      <Persons persons={persons} handleDelete={deletePerson} />
     </div>
   )
 }

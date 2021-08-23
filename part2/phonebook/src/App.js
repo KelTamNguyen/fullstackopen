@@ -40,12 +40,15 @@ const App = () => {
     if (existingPerson === undefined) {
       personService
         .createPerson(newPerson)
-        .then(returnedPerson => {
-          setPersons(persons.concat(returnedPerson));
-          setNotification({message: `Added ${newPerson.name}`, type: 'success'});
-          setTimeout(() => {
-            setNotification(null)
-          }, 5000);
+          .then(returnedPerson => {
+            setPersons(persons.concat(returnedPerson));
+            setNotification({message: `Added ${newPerson.name}`, type: 'success'});
+            setTimeout(() => {
+              setNotification(null)
+            }, 5000)
+            .catch(error => {
+              setNotification({message: 'missing name or number', type: 'error'})
+            })
         })
     } else {
         if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {

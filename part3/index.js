@@ -1,6 +1,13 @@
 const express = require('express');
+var morgan = require('morgan');
+const cors = require('cors')
 const app = express();
-app.use(express.json())
+
+app.use(express.json());
+app.use(morgan('tiny'));
+app.use(cors());
+
+morgan.token('body', (req) => JSON.stringify(req.body))
 
 let persons = [
     { 
@@ -47,10 +54,10 @@ app.post('/api/persons', (req, res) => {
     const body = req.body;
     const existingPerson = persons.find(person => person.name === body.name);
 
-    if (!body.name || !boddy.number) {
+    if (!body.name || !body.number) {
         return res.status(400).json({error: 'name or number missing'});
     } 
-    
+
     let newId = Math.floor(Math.random() * 20);
 
     const person = {
@@ -69,5 +76,5 @@ app.get('/api/info', (req, res) => {
     res.send(`<p>Phonebook has info for ${persons.length} people</p> <br></br> ${date}`);
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001
 app.listen(PORT);

@@ -1,12 +1,17 @@
+const mongoose = reuire('mongoose');
 const express = require('express');
 var morgan = require('morgan');
 const cors = require('cors')
 const app = express();
 
+const url = '';
+
 app.use(express.static('build'));
 app.use(express.json());
 app.use(morgan('tiny'));
 app.use(cors());
+
+mongoose.connect(url)
 
 morgan.token('body', (req) => JSON.stringify(req.body))
 

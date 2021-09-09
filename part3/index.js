@@ -61,24 +61,19 @@ app.post('/api/persons', (req, res) => {
         .catch(err => next(err));
 });
 
-app.post('/api/persons/:id', (req, res, next) => {
+app.put('/api/persons/:id', (req, res, next) => {
     const body = req.body;
 
-    const person = new Person({
+    const person = {
         name: body.name,
         number: body.number
-    });
+    };
 
     Person.findByIdAndUpdate(req.params.id, person, { new: true })
         .then(updatedPerson => {
             res.json(updatedPerson)
         })
         .catch(err => next(err));
-});
-
-app.get('/api/info', (req, res) => {
-    let date = new Date();
-    res.send(`<p>Phonebook has info for ${persons.length} people</p> <br></br> ${date}`);
 });
 
 app.get('/info', (req, res) => {

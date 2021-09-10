@@ -47,6 +47,7 @@ const App = () => {
               setNotification(null)
             }, 5000)
             .catch(error => {
+              console.log(error.response.data);
               setNotification({message: 'missing name or number', type: 'error'})
             })
         })

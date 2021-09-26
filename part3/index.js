@@ -32,8 +32,6 @@ app.get('/api/persons/:id', (req, res, next) => {
 });
 
 app.delete('/api/persons/:id', (req, res, next) => {
-	// const id = Number(req.params.id);
-	// persons = persons.filter(person => person.id !== id);
 	Person.findByIdAndRemove(req.params.id)
 		.then(() => {
 			res.status(204).end();

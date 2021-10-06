@@ -17,11 +17,17 @@ blogsRouter.get('/:id', async (req, res) => {
 
 blogsRouter.post('/', async (req, res, next) => {
     const blog = req.body;
+
     if (!blog.title || !blog.url) {
         return res.status(400).send({
             error: "title or url missing"
         });
     }
+
+    // const blog = {
+    //     title: body.title,
+    //     author: body.author,
+    // };
 
     const result = await new Blog(req.body).save();
     res.status(200).json(result);

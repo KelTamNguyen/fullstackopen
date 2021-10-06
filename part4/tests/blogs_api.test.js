@@ -19,19 +19,14 @@ test('there are three blogs returned as json', async () => {
     .get('/api/blogs')
     .expect(200)
     .expect('Content-Type', /application\/json/);
-});
-
-test('there are three blogs', async () => {
-    const response = await api.get('/api/blogs');
 
     expect(response.body).toHaveLength(helper.initialBlogs.length);
 });
 
-test('a specific blog is within the returned blogs', async () => {
+test('unique identifier of blogs is "id"', async () => {
     const response = await api.get('/api/blogs');
-
-    const titles = response.body.map(r => r.title);
-    expect(titles).toContain('React patterns')
+    const blog = response.body[0];
+    expect(blog.id).toBeDefined();
 });
 
 test('a valid blog can be added', async () => {
@@ -55,51 +50,75 @@ test('a valid blog can be added', async () => {
     expect(titles).toContain('First class tests');
 });
 
-test('blog with no title or link is not added', async () => {
-    const newBlog = {
-        author: "Robert C. Martin",
-        likes: 2,
+test('request with no likes property will default to 0', async () => {
+    const blogObject = {
+        title: "Go To Statement Considered Harmful",
+        author: "Edsger W. Dijkstra",
+        url: "http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html"
+    };
+
+    const response = await api.post('/api/blogs').send(blogObject);
+    expect(response.body.likes).toBe(0);
+});
+
+test('requests without title or url result in code HTTP 400 Bad Request', async () => {
+    const blogObject = {
+        author: "Edsger W. Dijkstra",
+        likes: 5
     };
 
     await api
         .post('/api/blogs')
-        .send(newBlog)
+        .send(blogObject)
         .expect(400)
         .expect('Content-Type', /application\/json/);
+});
+
+// test('blog with no title or link is not added', async () => {
+//     const newBlog = {
+//         author: "Robert C. Martin",
+//         likes: 2,
+//     };
+
+//     await api
+//         .post('/api/blogs')
+//         .send(newBlog)
+//         .expect(400)
+//         .expect('Content-Type', /application\/json/);
     
-    const blogsAtEnd = await helper.blogsInDB();
+//     const blogsAtEnd = await helper.blogsInDB();
 
-    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
-});
+//     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length);
+// });
 
-test('a specific blog can be viewed', async () => {
-    const blogsAtStart = await helper.blogsInDB();
-    const blogToView = blogsAtStart[0];
+// test('a specific blog can be viewed', async () => {
+//     const blogsAtStart = await helper.blogsInDB();
+//     const blogToView = blogsAtStart[0];
 
-    const resultBlog = await api
-            .get(`/api/blogs/${blogToView.id}`)
-            .expect(200)
-            .expect('Content-Type', /application\/json/);
+//     const resultBlog = await api
+//             .get(`/api/blogs/${blogToView.id}`)
+//             .expect(200)
+//             .expect('Content-Type', /application\/json/);
     
-    const processedBlogToView = JSON.parse(JSON.stringify(blogToView));
+//     const processedBlogToView = JSON.parse(JSON.stringify(blogToView));
 
-    expect(resultBlog.body).toEqual(processedBlogToView);
-});
+//     expect(resultBlog.body).toEqual(processedBlogToView);
+// });
 
-test('a blog can be deleted', async () => {
-    const blogsAtStart = await helper.blogsInDB();
-    const blogToDelete = blogsAtStart[0];
+// test('a blog can be deleted', async () => {
+//     const blogsAtStart = await helper.blogsInDB();
+//     const blogToDelete = blogsAtStart[0];
 
-    await api
-        .delete(`/api/blogs/${blogToDelete.id}`)
-        .expect(204);
+//     await api
+//         .delete(`/api/blogs/${blogToDelete.id}`)
+//         .expect(204);
 
-    const blogsAtEnd = await helper.blogsInDB();
-    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1);
+//     const blogsAtEnd = await helper.blogsInDB();
+//     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1);
 
-    const titles = blogsAtEnd.map(b => b.title);
-    expect(titles).not.toContain(blogToDelete.title);
-});
+//     const titles = blogsAtEnd.map(b => b.title);
+//     expect(titles).not.toContain(blogToDelete.title);
+// });
 
 afterAll(() => {
     mongoose.connection.close();

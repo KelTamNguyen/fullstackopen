@@ -1,0 +1,8 @@
+PUT http://localhost:3001/api/blogs/61605427a0c84ff334cdd347
+content-type: application/json
+{
+    "title": "Blog 2",
+    "author": "Kelvin Nguyen",
+    "url": "url2",
+    "likes": 1
+}

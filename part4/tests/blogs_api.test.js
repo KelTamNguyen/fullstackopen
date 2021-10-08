@@ -105,20 +105,40 @@ test('requests without title or url result in code HTTP 400 Bad Request', async 
 //     expect(resultBlog.body).toEqual(processedBlogToView);
 // });
 
-// test('a blog can be deleted', async () => {
-//     const blogsAtStart = await helper.blogsInDB();
-//     const blogToDelete = blogsAtStart[0];
+test('a blog can be deleted', async () => {
+    const blogsAtStart = await helper.blogsInDB();
+    const blogToDelete = blogsAtStart[0];
 
-//     await api
-//         .delete(`/api/blogs/${blogToDelete.id}`)
-//         .expect(204);
+    await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204);
 
-//     const blogsAtEnd = await helper.blogsInDB();
-//     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1);
+    const blogsAtEnd = await helper.blogsInDB();
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length - 1);
 
-//     const titles = blogsAtEnd.map(b => b.title);
-//     expect(titles).not.toContain(blogToDelete.title);
-// });
+    const titles = blogsAtEnd.map(b => b.title);
+    expect(titles).not.toContain(blogToDelete.title);
+});
+
+describe('updating blogs api', () => {
+    test('valid blogs can be updated', async () => {
+        const blogs = await api.get('/api/blogs');
+        const lastBlog = blogs.body[blogs.body.length - 1];
+        const newLastBlog = {
+            ...lastBlog,
+            likes: lastBlog.likes + 1
+        };
+
+       await api
+            .put(`/api/blogs/${lastBlog.id}`)
+            .send(newLastBlog)
+            .expect(200)
+            .expect('Content-Type', /application\/json/);
+        
+        const updatedBlog = await api.get(`/api/blogs/${lastBlog.id}`);
+        expect(updatedBlog.body).toEqual(newLastBlog);
+    });
+});
 
 afterAll(() => {
     mongoose.connection.close();

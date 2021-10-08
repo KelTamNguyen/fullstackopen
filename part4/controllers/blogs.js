@@ -24,11 +24,6 @@ blogsRouter.post('/', async (req, res, next) => {
         });
     }
 
-    // const blog = {
-    //     title: body.title,
-    //     author: body.author,
-    // };
-
     const result = await new Blog(req.body).save();
     res.status(200).json(result);
 });
@@ -36,6 +31,22 @@ blogsRouter.post('/', async (req, res, next) => {
 blogsRouter.delete('/:id', async (req, res) => {
     await Blog.findByIdAndRemove(req.params.id);
     res.status(204).end();
+});
+
+blogsRouter.put('/:id', async (req, res) => {
+    if (!req.body) {
+        return res.status(400).send({error : "no blog specified"});
+    }
+
+    const updatedBlog = {
+        title: req.body.title,
+        author: req.body.author,
+        url: req.body.url,
+        likes: req.body.likes
+    };
+
+    const updatedBlogs = await Blog.findByIdAndUpdate(req.params.id, updatedBlog, {new: true});
+    res.json(updatedBlogs);
 });
 
 module.exports = blogsRouter;
